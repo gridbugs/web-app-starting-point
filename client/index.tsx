@@ -8,6 +8,4 @@ class Hello extends React.Component {
   }
 }
 
-console.log('hi');
-
 ReactDOM.render(<Hello />, document.getElementById('root'));
