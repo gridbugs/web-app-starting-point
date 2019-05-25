@@ -2,16 +2,22 @@
   "name": "web-app-starting-point",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
   "scripts": {
-    "serve": "node app.js",
-    "dev": "npx webpack -dw",
-    "prod": "npx webpack -p"
+    "build:server": "tsc",
+    "build:client": "webpack -p",
+    "watch:server": "tsc -w",
+    "watch:client": "webpack -dw",
+    "serve": "node ./dist/index.js"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/express": "^4.16.1",
+    "@types/node": "^12.0.2",
+    "@types/react": "^16.8.18",
+    "@types/react-dom": "^16.8.4",
     "css-loader": "^2.1.1",
+    "ejs": "^2.6.1",
     "express": "^4.17.0",
     "style-loader": "^0.23.1",
     "ts-loader": "^6.0.1",
@@ -20,8 +26,6 @@
     "webpack-cli": "^3.3.2"
   },
   "dependencies": {
-    "@types/react": "^16.8.18",
-    "@types/react-dom": "^16.8.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   }

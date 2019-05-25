@@ -2,14 +2,15 @@ const path = require('path');
 
 module.exports = (env, argv) => {
   return {
-    entry: './client/index.tsx',
+    entry: {
+      main: path.resolve('.', 'src', 'client', 'index.tsx'),
+    },
     devtool: argv.mode === 'production' ? 'false' : 'inline-source-map',
     module: {
       rules: [
         {
           test: /\.tsx?$/,
           use: 'ts-loader',
-          exclude: /node_modules/
         },
         {
           test: /\.css$/,
@@ -25,7 +26,7 @@ module.exports = (env, argv) => {
       extensions: [ '.tsx', '.ts', '.js' ]
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(__dirname, 'dist', 'public'),
       filename: 'bundle.js'
     }
   }
