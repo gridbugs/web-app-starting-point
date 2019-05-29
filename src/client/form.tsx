@@ -9,21 +9,38 @@ export class Form<T> extends React.PureComponent {
     this.action = action;
   }
   public render() {
-    return <form action={this.action} method='get'>{this.builder.render()}<input type='submit'></input></form>;
+    let context = new Context(0);
+    return <form action={this.action} method='get'>{this.builder.render(context)}<input type='submit'></input></form>;
   }
 }
 
-export class FormBuilder<T> extends React.PureComponent {
-  public constructor() {
-    super({})
-  }
+export abstract class FormBuilder<T> {
   public build(action: string): Form<T> {
     return new Form(this, action);
   }
   public map<U>(f: (t:T)=>U): FormBuilder<U> {
     return new Map(this, f);
   }
+  public render(_context: Context): null | JSX.Element {
+    return null;
+  }
+  public abstract parse(context: Context, query: Query): T;
 }
+
+class Context {
+  private readonly value: number;
+  public constructor(value: number) {
+    this.value = value;
+  }
+  public name(): string {
+    return this.value.toString();
+  }
+  public next(): Context {
+    return new Context(this.value + 1);
+  }
+}
+
+type Query = { [index: string]: string };
 
 export class Map<T, U> extends FormBuilder<U> {
   private readonly f: ((t:T)=>U);
@@ -33,26 +50,27 @@ export class Map<T, U> extends FormBuilder<U> {
     this.f = f;
     this.builder = builder;
   }
-  public render() {
-    return this.builder.render();
+  public render(context: Context): null | JSX.Element {
+    return this.builder.render(context);
+  }
+  public parse(context: Context, query: Query): U {
+    return this.f(this.builder.parse(context, query));
   }
 }
 
 export class TextInput extends FormBuilder<string> {
-  public render() {
-    return <input type='text' name='value'></input>;
-  }
-}
-
-type Wrap<T> = {
-  [P in keyof T]: FormBuilder<T[P]>;
-}
-
-export class Join<T, U extends Wrap<T>> extends FormBuilder<T> {
-  private u: U;
-  public constructor(u: U) {
+  private label?: string;
+  public constructor(label?: string) {
     super();
-    this.u = u;
+    this.label = label;
+  }
+  public render(context: Context): JSX.Element {
+    let input = <input type='text' name={context.name()}></input>;
+    let label = this.label === null ? null : <div><label>{this.label}</label></div>;
+    return <div>{label}{input}</div>;
+  }
+  public parse(context: Context, query: Query): string {
+    return query[context.name()];
   }
 }
 
@@ -62,8 +80,8 @@ export abstract class InputList<T> extends FormBuilder<T> {
   }
 }
 export class InputListNil extends InputList<{}> {
-  public render() {
-    return false;
+  public parse(_context: Context, _query: Query): {} {
+    return {};
   }
 }
 export class InputListCons<K extends string, H, T> extends InputList<{ [P in K]: H } & T> {
@@ -76,28 +94,18 @@ export class InputListCons<K extends string, H, T> extends InputList<{ [P in K]:
     this.head = head;
     this.key = key;
   }
-  public render() {
-    return <div>{this.tail.render()}{this.head.render()}</div>;
+  public render(context: Context): JSX.Element {
+    return <div>{this.tail.render(context.next())}{this.head.render(context)}</div>;
+  }
+  public parse(context: Context, query: Query): { [P in K]: H } & T {
+    let head = this.head.parse(context, query);
+    let tail = this.tail.parse(context.next(), query);
+    //return { [this.key]: head, ...tail };
+    throw "";
   }
 }
 
-function a(): InputList<{name: string, age: number}> {
-  return new InputListNil()
-    .cons('name', new TextInput())
-    .cons('age', new TextInput().map(parseInt));
-}
-
-function f() {
-  let x: FormBuilder<{name: string, age: string}> = new Join({
-    name: new TextInput(),
-    age: new TextInput(),
-  });
-}
 
 function g<K extends string>(k: K): { [P in K]: string } {
   return { [k]: "foo" };
-}
-
-function h(): { foo: string } {
-  return g('foo');
 }

@@ -5,11 +5,14 @@ import express from 'express';
 
 const app = express();
 const port = 8080;
-app.get('/', (req: any, res: any) => {
-  res.write('<!doctype html>');
-  res.write(ReactDOMServer.renderToStaticMarkup(<Page />));
+app.get('/', (req: express.Request, res: express.Response) => {
+  res.send(ReactDOMServer.renderToStaticMarkup(<Page />));
+});
+app.get('/bundle.js', (req: express.Request, res: express.Response) => {
+  res.sendFile(__dirname + '/public/bundle.js');
+});
+app.get('/user', (req: express.Request, res: express.Response) => {
+  console.log(req.query);
   res.end();
 });
-app.get('/bundle.js', (req: any, res: any) => res.sendFile(__dirname + '/public/bundle.js'));
-
 app.listen(port, () => console.log(`Listening on port ${port}`));
