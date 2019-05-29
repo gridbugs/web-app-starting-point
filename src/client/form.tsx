@@ -9,8 +9,13 @@ export class Form<T> extends React.PureComponent {
     this.action = action;
   }
   public render() {
-    let context = new Context(0);
-    return <form action={this.action} method='get'>{this.builder.render(context)}<input type='submit'></input></form>;
+    return <form action={this.action} method='get'>
+      {this.builder.render()}
+      <input type='submit'></input>
+      </form>;
+  }
+  public parse(query: Query): T {
+    return this.builder.parse(query);
   }
 }
 
@@ -21,10 +26,17 @@ export abstract class FormBuilder<T> {
   public map<U>(f: (t:T)=>U): FormBuilder<U> {
     return new Map(this, f);
   }
-  public render(_context: Context): null | JSX.Element {
+  public renderWithContext(_context: Context): null | JSX.Element {
     return null;
   }
-  public abstract parse(context: Context, query: Query): T;
+  public abstract parseWithContext(context: Context, query: Query): T;
+  public render() {
+    let context = new Context(0);
+    return this.renderWithContext(context);
+  }
+  public parse(query: Query): T {
+    return this.parseWithContext(new Context(0), query);
+  }
 }
 
 class Context {
@@ -50,11 +62,11 @@ export class Map<T, U> extends FormBuilder<U> {
     this.f = f;
     this.builder = builder;
   }
-  public render(context: Context): null | JSX.Element {
-    return this.builder.render(context);
+  public renderWithContext(context: Context): null | JSX.Element {
+    return this.builder.renderWithContext(context);
   }
-  public parse(context: Context, query: Query): U {
-    return this.f(this.builder.parse(context, query));
+  public parseWithContext(context: Context, query: Query): U {
+    return this.f(this.builder.parseWithContext(context, query));
   }
 }
 
@@ -64,12 +76,12 @@ export class TextInput extends FormBuilder<string> {
     super();
     this.label = label;
   }
-  public render(context: Context): JSX.Element {
+  public renderWithContext(context: Context): JSX.Element {
     let input = <input type='text' name={context.name()}></input>;
     let label = this.label === null ? null : <div><label>{this.label}</label></div>;
     return <div>{label}{input}</div>;
   }
-  public parse(context: Context, query: Query): string {
+  public parseWithContext(context: Context, query: Query): string {
     return query[context.name()];
   }
 }
@@ -80,7 +92,7 @@ export abstract class InputList<T> extends FormBuilder<T> {
   }
 }
 export class InputListNil extends InputList<{}> {
-  public parse(_context: Context, _query: Query): {} {
+  public parseWithContext(_context: Context, _query: Query): {} {
     return {};
   }
 }
@@ -94,18 +106,14 @@ export class InputListCons<K extends string, H, T> extends InputList<{ [P in K]:
     this.head = head;
     this.key = key;
   }
-  public render(context: Context): JSX.Element {
-    return <div>{this.tail.render(context.next())}{this.head.render(context)}</div>;
+  public renderWithContext(context: Context): JSX.Element {
+    return <div>{this.tail.renderWithContext(context.next())}{this.head.renderWithContext(context)}</div>;
   }
-  public parse(context: Context, query: Query): { [P in K]: H } & T {
-    let head = this.head.parse(context, query);
-    let tail = this.tail.parse(context.next(), query);
-    //return { [this.key]: head, ...tail };
-    throw "";
+  public parseWithContext(context: Context, query: Query): { [P in K]: H } & T {
+    let head = this.head.parseWithContext(context, query);
+    let tail = this.tail.parseWithContext(context.next(), query);
+    // this type assertion shouldn't be necessary
+    let head_obj = { [this.key]: head } as { [P in K]: H };
+    return { ...head_obj, ...tail };
   }
-}
-
-
-function g<K extends string>(k: K): { [P in K]: string } {
-  return { [k]: "foo" };
 }
