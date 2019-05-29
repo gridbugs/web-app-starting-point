@@ -80,3 +80,24 @@ export class InputListCons<K extends string, H, T> extends InputList<{ [P in K]:
     return <div>{this.tail.render()}{this.head.render()}</div>;
   }
 }
+
+function a(): InputList<{name: string, age: number}> {
+  return new InputListNil()
+    .cons('name', new TextInput())
+    .cons('age', new TextInput().map(parseInt));
+}
+
+function f() {
+  let x: FormBuilder<{name: string, age: string}> = new Join({
+    name: new TextInput(),
+    age: new TextInput(),
+  });
+}
+
+function g<K extends string>(k: K): { [P in K]: string } {
+  return { [k]: "foo" };
+}
+
+function h(): { foo: string } {
+  return g('foo');
+}
