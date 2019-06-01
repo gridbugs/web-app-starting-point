@@ -4,8 +4,17 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import express from 'express';
 
+function getPort(): number {
+  const port = process.env.PORT;
+  if (typeof port === 'string') {
+    return parseInt(port);
+  } else {
+    return 8080;
+  }
+}
+
 const app = express();
-const port = 8080;
+const port = getPort();
 app.get('/', (req: express.Request, res: express.Response) => {
   res.send(ReactDOMServer.renderToStaticMarkup(<Page />));
 });
