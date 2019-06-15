@@ -1,6 +1,7 @@
 import { Page } from './client/page';
-import { USER_FORM_BUILDER } from './client/hello';
+import { User } from './client/hello';
 import express from 'express';
+import { Router } from './form-express';
 import { render } from 'preact-render-to-string';
 import { h } from 'preact';
 /** @jsx h */
@@ -14,6 +15,7 @@ function getPort(): number {
   }
 }
 
+const router = new Router();
 const app = express();
 const port = getPort();
 app.get('/', (req: express.Request, res: express.Response) => {
@@ -22,9 +24,8 @@ app.get('/', (req: express.Request, res: express.Response) => {
 app.get('/bundle.js', (req: express.Request, res: express.Response) => {
   res.sendFile(__dirname + '/public/bundle.js');
 });
-app.get('/user', (req: express.Request, res: express.Response) => {
-  let user = USER_FORM_BUILDER.parse(req.query);
-  console.log(USER_FORM_BUILDER.parse(req.query));
+router.route(app, User.form(), (user: User, req: express.Request, res: express.Response) => {
+  console.log(user);
   res.send(JSON.stringify(user));
 });
 app.listen(port, () => console.log(`Listening on port ${port}`));

@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
-import { Form, TextInput, InputListNil, FormBuilder } from './form';
+import { PreactFormRenderer } from './form-preact';
+import { Form, FormListNil, Method, TextField } from '../form';
 /** @jsx h */
 
 export class User {
@@ -9,16 +10,17 @@ export class User {
     this.name = name;
     this.age = age;
   }
+  public static form(): Form<User> {
+    return new FormListNil()
+    .cons({ 'name': new TextField().labelled("Name") })
+    .cons({ 'age': new TextField().map(parseInt).labelled("Age") })
+    .map(({name, age}) => new User(name, age))
+    .build('user', Method.Get);
+  }
 }
-
-export const USER_FORM_BUILDER =
-  new InputListNil()
-  .cons('name', new TextInput("Name:"))
-  .cons('age', new TextInput("Age:").map(parseInt))
-  .map(({name, age}) => new User(name, age));
 
 export class Hello extends Component {
   public render() {
-    return <div className='example'>{USER_FORM_BUILDER.build('user').render()}</div>;
+    return User.form().render(new PreactFormRenderer());
   }
 }
