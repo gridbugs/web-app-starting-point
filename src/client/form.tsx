@@ -1,6 +1,7 @@
-import React from 'react';
+import { h, Component } from 'preact';
+/** @jsx h */
 
-export class Form<T> extends React.PureComponent {
+export class Form<T> extends Component {
   private readonly builder: FormBuilder<T>;
   private readonly action: string;
   public constructor(builder: FormBuilder<T>, action: string) {

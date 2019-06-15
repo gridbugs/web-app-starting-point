@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { h, render } from 'preact';
 import { Hello } from './hello';
+/** @jsx h */
 
-ReactDOM.render(<Hello />, document.getElementById('root'));
+render(<Hello />, document.body);

@@ -1,5 +1,6 @@
-import React from 'react';
+import { h, Component } from 'preact';
 import { Form, TextInput, InputListNil, FormBuilder } from './form';
+/** @jsx h */
 
 export class User {
   private readonly name: string;
@@ -16,7 +17,7 @@ export const USER_FORM_BUILDER =
   .cons('age', new TextInput("Age:").map(parseInt))
   .map(({name, age}) => new User(name, age));
 
-export class Hello extends React.Component {
+export class Hello extends Component {
   public render() {
     return <div className='example'>{USER_FORM_BUILDER.build('user').render()}</div>;
   }

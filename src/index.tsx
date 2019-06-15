@@ -1,8 +1,9 @@
 import { Page } from './client/page';
 import { USER_FORM_BUILDER } from './client/hello';
-import React from 'react';
-import ReactDOMServer from 'react-dom/server';
 import express from 'express';
+import { render } from 'preact-render-to-string';
+import { h } from 'preact';
+/** @jsx h */
 
 function getPort(): number {
   const port = process.env.PORT;
@@ -16,13 +17,14 @@ function getPort(): number {
 const app = express();
 const port = getPort();
 app.get('/', (req: express.Request, res: express.Response) => {
-  res.send(ReactDOMServer.renderToStaticMarkup(<Page />));
+  res.send(render(<Page />));
 });
 app.get('/bundle.js', (req: express.Request, res: express.Response) => {
   res.sendFile(__dirname + '/public/bundle.js');
 });
 app.get('/user', (req: express.Request, res: express.Response) => {
+  let user = USER_FORM_BUILDER.parse(req.query);
   console.log(USER_FORM_BUILDER.parse(req.query));
-  res.end();
+  res.send(JSON.stringify(user));
 });
 app.listen(port, () => console.log(`Listening on port ${port}`));

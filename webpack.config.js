@@ -20,14 +20,14 @@ module.exports = (env, argv) => {
           ],
           exclude: /node_modules/
         }
-      ]
+      ],
     },
     resolve: {
-      extensions: [ '.tsx', '.ts', '.js' ]
+      extensions: [ '.tsx', '.ts', '.js' ],
     },
     output: {
       path: path.resolve(__dirname, 'dist', 'public'),
-      filename: 'bundle.js'
+      filename: 'bundle.js',
     }
   }
 }

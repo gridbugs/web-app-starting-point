@@ -1,9 +1,7 @@
-import React from 'react';
+import { h } from 'preact';
 import { Hello } from './hello';
+/** @jsx h */
 
 export function Page() {
-  return <div>
-    <div id="root"><Hello /></div>
-    <script src="/bundle.js"></script>
-    </div>;
+  return <div><Hello /></div>;
 }
